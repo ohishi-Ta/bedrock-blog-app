@@ -3,57 +3,30 @@
 import { useState } from 'react';
 
 function App() {
-  // ユーザーの入力テキストを管理するState
   const [prompt, setPrompt] = useState('');
-  // APIからの応答を管理するState
   const [response, setResponse] = useState('');
-  // ローディング状態を管理するState
   const [isLoading, setIsLoading] = useState(false);
-  // エラーメッセージを管理するState
   const [error, setError] = useState('');
 
-  // フォーム送信時の処理
   const handleSubmit = async (e) => {
-    e.preventDefault(); // ページの再読み込みを防ぐ
-    if (!prompt) return; // 入力が空なら何もしない
+    e.preventDefault();
+    if (!prompt) return;
 
     setIsLoading(true);
     setResponse('');
     setError('');
 
     try {
-      // ここにあなたのAPI GatewayのエンドポイントURLを設定します
       const apiEndpoint = 'https://YOUR_API_GATEWAY_ENDPOINT_URL/prod/chat';
       
-      // 実際には上記のURLにリクエストしますが、ここではダミーの処理をします
-      // --- ダミー処理 ここから ---
       console.log('Sending POST request to:', apiEndpoint);
       console.log('Body:', JSON.stringify({ prompt }));
-      await new Promise(resolve => setTimeout(resolve, 1500)); // 1.5秒待つ
+      await new Promise(resolve => setTimeout(resolve, 1500));
       const dummyResponse = `これは「${prompt}」に対するClaude 3.5 Sonnetからのダミーの応答です。実際のAPIに接続すると、AIが生成したテキストがここに表示されます。`;
       setResponse(dummyResponse);
-      // --- ダミー処理 ここまで ---
-
-      /*
-      // ▼ 実際のAPIに接続する場合は、以下のコメントを解除してください ▼
-      const res = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt: prompt }),
-      });
-
-      if (!res.ok) {
-        throw new Error(`APIエラーが発生しました: ${res.statusText}`);
-      }
-
-      const data = await res.json();
-      setResponse(data.body); // Lambdaからの応答をセット
-      */
 
     } catch (err) {
-      setError(err.message || '不明なエラーが発生しました。ダミーURLのままかもしれません。');
+      setError(err.message || '不明なエラーが発生しました。');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -61,11 +34,17 @@ function App() {
   };
 
   return (
+    // ↓↓↓ このdivがポイント！画面全体を背景色で覆い、中の要素を中央に配置します ↓↓↓
     <div className="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+      
+      {/* ↓↓↓ これが中央に配置されるコンテンツ本体のコンテナです ↓↓↓ */}
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
+        
+        {/* タイトルと説明文はテキストを中央寄せに */}
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
           Chat with Claude 3.5 Sonnet
         </h1>
+
 
         <form onSubmit={handleSubmit}>
           <textarea
