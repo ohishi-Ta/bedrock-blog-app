@@ -12,39 +12,70 @@ function App() {
     e.preventDefault();
     if (!prompt) return;
 
+    // --- [LOG 1] ---
+    // フォーム送信が開始されたことをログに出力
+    console.log('🚀 フォーム送信開始...');
+    
     setIsLoading(true);
     setResponse('');
     setError('');
 
     try {
-      const apiEndpoint = 'https://YOUR_API_GATEWAY_ENDPOINT_URL/prod/chat';
+      const apiEndpoint = 'https://ct58vde5v8.execute-api.ap-northeast-1.amazonaws.com/prod/chat';
+      const requestBody = { prompt: prompt };
+
+      // --- [LOG 2] ---
+      // どのURLに、どんなデータを送るのかをログに出力
+      console.log(`📡 APIリクエスト送信:
+      - エンドポイント: ${apiEndpoint}
+      - メソッド: POST
+      - ボディ:`, requestBody);
+
+      const res = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      // --- [LOG 3] ---
+      // APIからの生のレスポンスオブジェクトをログに出力
+      console.log('📬 APIレスポンス受信:', res);
+
+      if (!res.ok) {
+        // HTTPステータスがエラーの場合、エラーを発生させる
+        throw new Error(`APIエラー: ${res.status} ${res.statusText}`);
+      }
+
+      const data = await res.json();
       
-      console.log('Sending POST request to:', apiEndpoint);
-      console.log('Body:', JSON.stringify({ prompt }));
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const dummyResponse = `これは「${prompt}」に対するClaude 3.5 Sonnetからのダミーの応答です。実際のAPIに接続すると、AIが生成したテキストがここに表示されます。`;
-      setResponse(dummyResponse);
+      // --- [LOG 4] ---
+      // JSONパース後のデータをログに出力（これが最終的な応答データ）
+      console.log('✅ 応答データ:', data);
+
+      setResponse(data);
 
     } catch (err) {
+      // --- [LOG 5] ---
+      // エラーが発生した場合、その内容をコンソールにエラーとして出力
+      console.error('❌ エラー発生:', err);
       setError(err.message || '不明なエラーが発生しました。');
-      console.error(err);
+
     } finally {
+      // --- [LOG 6] ---
+      // 処理が完了したことをログに出力
+      console.log('🏁 処理完了');
       setIsLoading(false);
     }
   };
 
   return (
-    // ↓↓↓ このdivがポイント！画面全体を背景色で覆い、中の要素を中央に配置します ↓↓↓
     <div className="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-      
-      {/* ↓↓↓ これが中央に配置されるコンテンツ本体のコンテナです ↓↓↓ */}
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
-        
-        {/* タイトルと説明文はテキストを中央寄せに */}
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
           Chat with Claude 3.5 Sonnet
         </h1>
-
 
         <form onSubmit={handleSubmit}>
           <textarea
